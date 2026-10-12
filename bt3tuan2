@@ -1,0 +1,189 @@
+package com.example.bt3tuan2
+
+import android.os.Bundle
+import androidx.activity.ComponentActivity
+import androidx.activity.compose.setContent
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.*
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import kotlin.math.roundToInt
+
+data class Student(
+    val name: String,
+    val score: Double? = null
+)
+
+class MainActivity : ComponentActivity() {
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContent {
+            MaterialTheme {
+                ClassGradeScreen()
+            }
+        }
+    }
+}
+
+fun getGrade(score: Double): String {
+    if (score >= 8.0) return "Giỏi"
+    if (score >= 6.5) return "Khá"
+    if (score >= 5.0) return "Trung bình"
+    return "Yếu"
+}
+
+fun getGradeColor(score: Double): Color {
+    if (score >= 8.0) return Color(0xFF4CAF50)
+    if (score >= 6.5) return Color(0xFF2196F3)
+    if (score >= 5.0) return Color(0xFFFF9800)
+    return Color(0xFFF44336)
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun ClassGradeScreen() {
+
+    val students = listOf(
+        Student("Nguyễn Văn An", 9.0),
+        Student("Trần Thị Bình", 7.2),
+        Student("Lê Minh Chí", null), // Chưa có điểm
+        Student("Phạm Quốc Dũng", 4.5),
+        Student("Võ Thanh Em", 5.8)
+    )
+
+    var totalScore = 0.0
+    var countHasScore = 0
+    var countExcellent = 0
+    var countNoScore = 0
+    var maxScore = 0.0
+    for ((_, score) in students) {
+        if (score == null) {
+            countNoScore++
+        } else {
+            totalScore += score
+            countHasScore++
+
+            if (score >= 8.0) countExcellent++
+            if (score > maxScore) maxScore = score
+        }
+    }
+
+    val avgScore = if (countHasScore > 0) totalScore / countHasScore else 0.0
+    val avgScoreDisplay = (avgScore * 100.0).roundToInt() / 100.0
+
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = { Text("Bảng điểm lớp", color = Color.White) },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = Color(0xFF283553)
+                )
+            )
+        }
+    ) { paddingValues ->
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(Color(0xFFF7F8FA))
+                .padding(paddingValues)
+                .padding(16.dp)
+                .verticalScroll(rememberScrollState())
+        ) {
+
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(12.dp),
+                colors = CardDefaults.cardColors(
+                    containerColor = Color(0xFF3B537F)
+                ),
+                elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+            ) {
+                Column(modifier = Modifier.padding(20.dp)) {
+                    Text("Điểm trung bình lớp", color = Color.White.copy(alpha = 0.8f), fontSize = 12.sp)
+                    Text("$avgScoreDisplay", color = Color.White, fontSize = 40.sp, fontWeight = FontWeight.Bold)
+
+                    Spacer(modifier = Modifier.height(24.dp))
+
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        Column {
+                            Text("Giỏi", color = Color.White.copy(alpha = 0.8f), fontSize = 12.sp)
+                            Text("$countExcellent", color = Color.White, fontSize = 18.sp, fontWeight = FontWeight.Bold)
+                        }
+                        Column {
+                            Text("Chưa có điểm", color = Color.White.copy(alpha = 0.8f), fontSize = 12.sp)
+                            Text("$countNoScore", color = Color.White, fontSize = 18.sp, fontWeight = FontWeight.Bold)
+                        }
+                        Column {
+                            Text("Cao nhất", color = Color.White.copy(alpha = 0.8f), fontSize = 12.sp)
+                            Text("$maxScore", color = Color.White, fontSize = 18.sp, fontWeight = FontWeight.Bold)
+                        }
+                    }
+                }
+            }
+
+            Spacer(modifier = Modifier.height(24.dp))
+
+            Text(
+                "DANH SÁCH - ${students.size} SINH VIÊN",
+                color = Color.Gray,
+                fontSize = 12.sp,
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier.padding(bottom = 8.dp)
+            )
+
+            for ((name, score) in students) {
+                Card(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 6.dp),
+                    shape = RoundedCornerShape(8.dp),
+                    colors = CardDefaults.cardColors(containerColor = Color.White),
+                    elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+                ) {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(16.dp),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Column {
+                            Text(name, fontWeight = FontWeight.Bold, fontSize = 16.sp)
+
+                            Spacer(modifier = Modifier.height(4.dp))
+
+                            if (score == null) {
+                                Text("Chưa có điểm", color = Color.Gray, fontSize = 12.sp)
+                            } else {
+                                Text(
+                                    text = getGrade(score),
+                                    color = getGradeColor(score),
+                                    fontSize = 12.sp,
+                                    fontWeight = FontWeight.Bold
+                                )
+                            }
+                        }
+
+                        Text(
+                            text = score?.toString() ?: "—",
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 18.sp
+                        )
+                    }
+                }
+            }
+        }
+    }
+}
