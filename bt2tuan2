@@ -1,0 +1,168 @@
+package com.example.bt2tuan2
+
+import android.os.Bundle
+import androidx.activity.ComponentActivity
+import androidx.activity.compose.setContent
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.*
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+
+class MainActivity : ComponentActivity() {
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContent {
+            MaterialTheme {
+                GradeScreen()
+            }
+        }
+    }
+}
+
+fun getGrade(score: Double): String {
+    return if (score !in 0.0..10.0) {
+        "Không hợp lệ"
+    } else if (score >= 8.0) {
+        "Giỏi"
+    } else if (score >= 6.5) {
+        "Khá"
+    } else if (score >= 5.0) {
+        "Trung bình"
+    } else {
+        "Yếu"
+    }
+}
+fun getGradeColor(score: Double): Color {
+    if (score !in 0.0..10.0) return Color.Gray
+    if (score >= 8.0) return Color(0xFF4CAF50) 
+    if (score >= 6.5) return Color(0xFF2196F3) 
+    if (score >= 5.0) return Color(0xFFFF9800) 
+    return Color(0xFFF44336) 
+}
+fun getGradeBgColor(score: Double): Color {
+    if (score !in 0.0..10.0) return Color(0xFFEEEEEE)
+    if (score >= 8.0) return Color(0xFFE8F5E9)
+    if (score >= 6.5) return Color(0xFFE3F2FD)
+    if (score >= 5.0) return Color(0xFFFFF3E0)
+    return Color(0xFFFFEBEE)
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun GradeScreen() {
+    val mainScore = 8.5
+
+    val testScores = listOf(9.0, 7.0, 5.5, 3.0, 11.0)
+
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = { Text("Xếp loại học lực", color = Color.White) },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = Color(0xFF1B3B6F)
+                )
+            )
+        }
+    ) { paddingValues ->
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(Color(0xFFF5F5F5))
+                .padding(paddingValues)
+                .padding(16.dp)
+        ) {
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(12.dp),
+                elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+            ) {
+                Column(
+                    modifier = Modifier.padding(24.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Text(text = "Điểm trung bình", color = Color.Gray, fontSize = 14.sp)
+
+                    Spacer(modifier = Modifier.height(8.dp)) 
+
+                    Text(text = mainScore.toString(), fontSize = 48.sp, fontWeight = FontWeight.Bold)
+
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .background(getGradeBgColor(mainScore), RoundedCornerShape(8.dp))
+                            .padding(vertical = 12.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = getGrade(mainScore),
+                            color = getGradeColor(mainScore),
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 18.sp
+                        )
+                    }
+                }
+            }
+
+            Spacer(modifier = Modifier.height(24.dp))
+
+            Text(
+                text = "KIỂM TRA THÊM",
+                color = Color.Gray,
+                fontWeight = FontWeight.Bold,
+                fontSize = 12.sp,
+                modifier = Modifier.padding(bottom = 8.dp, start = 4.dp)
+            )
+
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(12.dp),
+                elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+            ) {
+                Column {
+                    for (score in testScores) {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = 16.dp, vertical = 12.dp),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            val displayScore = if (score % 1 == 0.0) score.toInt().toString() else score.toString()
+
+                            Text(text = "Điểm $displayScore", fontSize = 16.sp)
+
+                            Box(
+                                modifier = Modifier
+                                    .background(getGradeBgColor(score), RoundedCornerShape(6.dp))
+                                    .padding(horizontal = 12.dp, vertical = 6.dp)
+                            ) {
+                                Text(
+                                    text = getGrade(score),
+                                    color = getGradeColor(score),
+                                    fontWeight = FontWeight.Bold,
+                                    fontSize = 12.sp
+                                )
+                            }
+                        }
+
+                        if (score != testScores.last()) {
+                            HorizontalDivider(
+                                color = Color.LightGray.copy(alpha = 0.5f),
+                                thickness = 1.dp
+                            )
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
