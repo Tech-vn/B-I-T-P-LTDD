@@ -1,0 +1,111 @@
+package com.example.baitap1tuan2
+
+import android.os.Bundle
+import androidx.activity.ComponentActivity
+import androidx.activity.compose.setContent
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.*
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+
+data class Student(
+    val name: String,
+    val email: String? = null,
+    val phone: String? = null
+)
+
+class MainActivity : ComponentActivity() {
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContent {
+            MaterialTheme {
+                StudentListScreen()
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun StudentListScreen() {
+    val students = listOf(
+        Student(name = "Nguyễn Văn An", email = "an@sv.edu.vn", phone = "0901 234 567"),
+        Student(name = "Trần Thị Bình", email = "binh@sv.edu.vn"), // Thiếu SĐT
+        Student(name = "Lê Minh Chí", email = "chi@sv.edu.vn"),    // Thiếu SĐT
+        Student(name = "Phạm Quốc Dũng"),                         // Thiếu cả email và SĐT
+        Student(name = "Võ Thanh Em", phone = "0933 111 222")      // Thiếu email
+    )
+
+    var missingEmailCount = 0
+    for ((_, email, _) in students) {
+        if (email == null) {
+            missingEmailCount++
+        }
+    }
+
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = { Text("Danh sách sinh viên", color = Color.White) },
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = Color(0xFF1B3B6F))
+            )
+        },
+        bottomBar = {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(Color(0xFFE3F2FD))
+                    .padding(16.dp),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Text(
+                    text = "Tổng: ${students.size} sinh viên",
+                    fontWeight = FontWeight.Bold
+                )
+                Text(
+                    text = "Thiếu email: $missingEmailCount",
+                    fontWeight = FontWeight.Bold,
+                    color = Color.Red
+                )
+            }
+        }
+    ) { paddingValues ->
+        Column(
+            modifier = Modifier.padding(paddingValues)
+                .fillMaxSize()
+                .verticalScroll(rememberScrollState())
+        ) {
+            for ((name, email, phone) in students) {
+                Card(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp, vertical = 8.dp),
+                    elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
+                    shape = RoundedCornerShape(8.dp)
+                ) {
+                    Column(
+                        modifier = Modifier.padding(16.dp)
+                    ) {
+                        Text(
+                            text = name,
+                            fontSize = 16.sp,
+                            fontWeight = FontWeight.Bold
+                        )
+                        Spacer(modifier = Modifier.height(4.dp))
+
+                        Text(text = "Email: ${email ?: "Chưa cập nhật"}")
+                        Text(text = "SĐT: ${phone ?: "Chưa cập nhật"}")
+                    }
+                }
+            }
+        }
+    }
+}
