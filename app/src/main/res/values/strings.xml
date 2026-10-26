@@ -1,0 +1,9 @@
+<resources>
+    <string name="app_name">SmartTasksApp</string>
+    <string name="smart_tasks">SmartTasks</string>
+    <string name="confirm">Confirm</string>
+    <string name="help_message">We are here to help you!</string>
+    <string name="submit">Submit</string>
+    <string name="back">Back</string>
+    <string name="logo">Logo</string>
+</resources>
